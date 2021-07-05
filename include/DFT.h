@@ -1,0 +1,88 @@
+#ifndef _DFT_h_
+#define _DFT_h_
+
+#include <lac/sparse_matrix.h>
+#include <lac/sparsity_pattern.h>
+#include <iostream>
+#include <math.h>
+#include <vector>
+
+#include <EigenSolver/EigenSolver.h>
+
+#include <AFEPack/BilinearOperator.h>
+#include <AFEPack/Functional.h>
+#include <AFEPack/Operator.h>
+#include <AFEPack/EasyMesh.h>
+#include <AFEPack/TemplateElement.h>
+#include <AFEPack/FEMSpace.h>
+#include <AFEPack/Geometry.h>
+#include <AFEPack/BoundaryCondition.h>
+#include <AFEPack/HGeometry.h>
+
+#define DIM 3
+#define PI 4.0*atan(1)
+#define ACC 2
+
+class DFT
+{
+ public:
+  DFT();
+  DFT(HGeometryTree<DIM>* _h_tree,
+	   IrregularMesh<DIM>* _ir_mesh);
+  
+  
+  /**
+   * This function is used to initialization, including read mesh 
+   * data, build the template elent.
+   */
+  void initialize();
+
+  /**
+   * This function is used to build the finite element space for KS
+   * equations to get the wavefunctions.
+   */
+  void buildspace();
+
+  /**
+   * This function is used to build the finite element space for 
+   * poisson equation to get the Hartree potential to complete 
+   * self-consistent iteration.
+   */
+  //void buildspaceHartree();
+
+  void buildHartreeMatrix();
+  void getRHS_Hartree();
+  void addBoundaryCondition_Hartree();
+  /**
+   * This function is used to compute the Hartree potential.
+   * In fact, It just solve a linear system of a poisson equation.
+   */
+  void getHartree();
+  
+ private:
+  //int DIM;
+  //Mesh<DIM> mesh;
+  HGeometryTree<DIM> * h_tree;
+  IrregularMesh<DIM> * irregular_mesh;
+  //IrregularMesh<DIM> * old_irregular_mesh;
+
+  //DGFEMSpace<double, DIM> * fem_space;
+  //DGFEMSPace<double, DIM> * old_fem_space;
+
+  StiffMatrix<DIM, double> * stiff_Hartree;
+  StiffMatrix<DIM, double> * stiff_matrix;
+
+  // for regular template 
+  TemplateGeometry<DIM> template_geometry;
+  CoordTransform<DIM,DIM> coord_transform;
+  TemplateDOF<DIM> template_dof;
+  BasisFunctionAdmin<double,DIM,DIM> basis_function;
+  std::vector<TemplateElement<double,DIM,DIM>> template_element;
+  
+  FEMSpace<double,DIM> * fem_space;
+  FEMFunction<double,DIM> * u_h;
+  
+  Vector<double> * rhs;
+};
+
+#endif
