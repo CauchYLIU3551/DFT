@@ -6,6 +6,7 @@
 #include <iostream>
 #include <math.h>
 #include <vector>
+#include <string>
 
 #include <EigenSolver/EigenSolver.h>
 
@@ -18,6 +19,7 @@
 #include <AFEPack/Geometry.h>
 #include <AFEPack/BoundaryCondition.h>
 #include <AFEPack/HGeometry.h>
+#include <AFEPack/DGFEMSpace.h>
 
 #define DIM 3
 #define PI 4.0*atan(1)
@@ -30,12 +32,23 @@ class DFT
   DFT(HGeometryTree<DIM>* _h_tree,
 	   IrregularMesh<DIM>* _ir_mesh);
   
+  /**
+   * This function reads the input .mesh file to get the mesh info.
+   */
+  void readMesh(const std::string& fileName,
+		const int& refine_times);
   
   /**
    * This function is used to initialization, including read mesh 
    * data, build the template elent.
    */
   void initialize();
+
+  /**
+   * This function initialize the electric density rho to start 
+   * self-consistent iteration.
+   */
+  void initializeRho();
 
   /**
    * This function is used to build the finite element space for KS
@@ -64,6 +77,7 @@ class DFT
   //Mesh<DIM> mesh;
   HGeometryTree<DIM> * h_tree;
   IrregularMesh<DIM> * irregular_mesh;
+  IrregularMesh<DIM> * old_irregular_mesh;
   //IrregularMesh<DIM> * old_irregular_mesh;
 
   //DGFEMSpace<double, DIM> * fem_space;
@@ -77,12 +91,40 @@ class DFT
   CoordTransform<DIM,DIM> coord_transform;
   TemplateDOF<DIM> template_dof;
   BasisFunctionAdmin<double,DIM,DIM> basis_function;
-  std::vector<TemplateElement<double,DIM,DIM>> template_element;
+  UnitOutNormal<DIM> unit_out_normal;
+
+  /// for twin_template
+  TemplateGeometry<DIM> twin_template_geometry;
+  CoordTransform<DIM, DIM> twin_coord_transform;
+  TemplateDOF<DIM> twin_template_dof;
+  BasisFunctionAdmin<double, DIM, DIM> twin_basis_function;
+  UnitOutNormal<DIM> twin_unit_out_normal;
+
+  /// for four_template
+  TemplateGeometry<DIM> four_template_geometry;
+  CoordTransform<DIM, DIM> four_coord_transform;
+  TemplateDOF<DIM> four_template_dof;
+  BasisFunctionAdmin<double, DIM, DIM> four_basis_function;
+  UnitOutNormal<DIM> four_unit_out_normal;
+
+  /// for boundary 
+  TemplateGeometry<DIM-1> triangle_template_geometry;
+  CoordTransform<DIM-1,DIM> triangle_to3d_coord_transform;
+
+  TemplateGeometry<DIM-1> twin_triangle_template_geometry;
+  CoordTransform<DIM-1,DIM> twin_triangle_to3d_coord_transform;
   
-  FEMSpace<double,DIM> * fem_space;
+  std::vector<TemplateElement<double,DIM,DIM>> template_element;
+  std::vector<TemplateDGElement<DIM-1,DIM> > edge_template_element;
+  
+  
+  DGFEMSpace<double,DIM> * fem_space;
+  DGFEMSpace<double,DIM> * old_fem_space;
+  
   FEMFunction<double,DIM> * u_h;
   
   Vector<double> * rhs;
+  Vector<double> * rho;
 };
 
 #endif

@@ -1,0 +1,6 @@
+#include "../include/DFT.h"
+
+void DFT::initializeRho()
+{
+  
+}

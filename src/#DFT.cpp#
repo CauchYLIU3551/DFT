@@ -137,7 +137,7 @@ void DFT::buildHartreeMatrix()
   }
 
   std::cout << "build a new stiff_matrix for Hatree potential" << std::endl;
-  stiff_Hartree = new StiffMatrix<DIM, double>(*fem_space);
+  //  stiff_matrix->reinit(*fem_space);
   stiff_Hartree->algebricAccuracy() = ACC;
   stiff_Hartree->build();
 }
