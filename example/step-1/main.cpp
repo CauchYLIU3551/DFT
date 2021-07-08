@@ -34,10 +34,15 @@ int main(int argc, char* argv[])
   // iteration.
   std::cout<<"initialize the electric density...\n";
   myDFT.initializeRho();
+  std::cout<<"Density finish initializing!\n";
   //////////////////////////////////////////////////////////////
   // get the right-hand side vector of the poisson equations via
   // electric density.
-  myDFT.getRHS_Hartree();
   std::cout<<"get the rhs vector of the poisson equation of Hartree potential...\n";
- 
+  myDFT.getRHS_Hartree();
+  std::cout<<"Apply boundary condition...\n";
+  myDFT.addBoundaryCondition_Hartree();
+  std::cout<<"Begin to solve the poisson equation for Hartree...\n";
+  myDFT.solveHartree();
+  //myDFT.printMesh(); 
 }

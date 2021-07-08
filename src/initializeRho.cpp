@@ -21,7 +21,9 @@ std::vector<double> proj(std::vector<double> u, std::vector<double> v)
     }
   return v;
 }
-
+////////////////////////////////////////////////////
+// This function GS can compute the Gram-Schmdit process of the matrix
+// X to get the orthonormal matrix corresponding to X;
 void GS(std::vector<std::vector<double>>& X)
 {
   std::vector<std::vector<double>> tempX;
@@ -50,6 +52,7 @@ void GS(std::vector<std::vector<double>>& X)
     }
 }
 
+/*
 void DFT::initializeRho()
 {
   const int& n_dof = fem_space->n_dof();
@@ -91,4 +94,58 @@ void DFT::initializeRho()
       //std::cout<<"The rho["<<i<<"] is "<<rho[i]<<"\n\n";
     }
   std::cout<<"Finish compute rho...\n";
+}
+*/
+
+void DFT::initializeRho()
+{
+  phi = new FEMFunction<double,DIM>(*fem_space);
+  rho = new FEMFunction<double,DIM>(*fem_space);
+
+  for (u_int i = 0;i < rho->size();++ i)
+    {
+      (*phi)[i] = ((double) rand() / (RAND_MAX));
+      std::cout<<(*phi)[i]<<" ";
+    }
+  std::cout<<"The initial rho begin normalize...\n";
+  normalize(*phi);
+  //rho->reinit(*fem_space);
+  //std::cout<<"The size of rho is "<<rho->size()<<std::endl;
+
+  ////////////////////////
+  /*
+  FEMSpace<double, DIM>::ElementIterator
+    the_ele = fem_space->beginElement(),
+    end_ele = fem_space->endElement();y
+  for(;the_ele != end_ele;++ the_ele)
+    {
+      double vol = the_ele->templateElement().volume();
+      const QuadratureInfo<DIM>& qi = the_ele->findQuadratureInfo(3);
+      u_int n_q_pnt = qi.n_quadraturePoint();
+      std::vector<double> jac = the_ele->local_to_global_jacobian(qi.quadraturePoint());
+      std::vector<AFEPack::Point<DIM>> q_pnt = the_ele->local_to_global(qi.quadraturePoint());
+      std::vector<double> rho_val = rho->value(q_pnt, *the_ele);
+      // compute the integral of the wavefunction to normalize it.
+      for (u_int l = 0;l < n_q_pnt;l ++)
+	{
+	  double Jxw = qi.weight(l)*jac[l]*vol;
+	  norm += Jxw * rho_val[l] * rho_val[l];
+	}
+    }
+  std::cout<<"This is the initial rho at the vertice of mesh...\n";
+  for (u_int i = 0;i < rho->size();++ i)
+    {
+      (*rho)[i] /=  sqrt(norm);
+      std::cout<<(*rho)[i]<<" ";
+    }
+  
+  */
+  //////////////////////////////
+
+  for (u_int i = 0;i < rho->size();i ++)
+    {
+      (*rho)[i] = 2 * (*phi)[i] * (*phi)[i];
+      // std::cout<<(*rho)[i]<<" ";
+    }
+  std::cout<<"size of rho is "<<rho->size()<<std::endl;
 }

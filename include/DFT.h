@@ -71,6 +71,19 @@ class DFT
    * In fact, It just solve a linear system of a poisson equation.
    */
   void getHartree();
+
+  /**
+   * This function can normalize the wave function to satisfy the 
+   * normalization condition of the wave functions.
+   */
+  void normalize(FEMFunction<double,DIM>& P); 
+
+  void printMesh();
+
+  /**
+   * This function solve the poisson equation to get V_Hartree 
+   */
+  void solveHartree();
   
  private:
   //int DIM;
@@ -122,9 +135,12 @@ class DFT
   DGFEMSpace<double,DIM> * old_fem_space;
   
   FEMFunction<double,DIM> * u_h;
+  FEMFunction<double,DIM> * V_hartree;
   
   Vector<double> * rhs;
-  Vector<double> * rho;
+  //Vector<double> * rho;
+  FEMFunction<double,DIM> * phi;
+  FEMFunction<double,DIM> * rho;
 };
 
 #endif
