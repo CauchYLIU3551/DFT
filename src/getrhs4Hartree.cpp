@@ -25,7 +25,7 @@ void DFT::getRHS_Hartree()
 	  double Jxw = vol*qi.weight(l)*jac[l];
 	  for (u_int i = 0; i < n_ele_dof;++ i)
 	    {
-	      (*rhs)(ele_dof[i]) += 4.0*PI*bas_val[i][l]*rho_val[l];
+	      (*rhs)(ele_dof[i]) += -4.0*PI*bas_val[i][l]*rho_val[l];
 	    }
 	}
     }

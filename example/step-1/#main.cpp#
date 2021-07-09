@@ -37,9 +37,6 @@ int main(int argc, char* argv[])
   myDFT.initializePhi();
   std::cout<<"Density finish initializing!\n";
 
-  int iter = 0;
-  double res = 0;
-  double tol = 1.e-3;
   do{
     //////////////////////////////////////////////////////////////
     // get the right-hand side vector of the poisson equations via
@@ -59,20 +56,11 @@ int main(int argc, char* argv[])
     std::cout<<"solve the KS equation...\n";
     myDFT.solveKS();
     std::cout<<"normalize the solution...\n";
-    myDFT.normalize_phi();
+    myDFT.normalize(*phi);
     std::cout<<"compute the res...\n";
-    myDFT.get_res4psi(res);
-    if(res < tol)
-      {
-	break;
-      }
-    std::cout<<"The res is "<<res<<"\n";
-    std::cout << "Press ENTER to continue or CTRL+C to stop ..." << std::flush;
-    getchar();
-
+    myDFT.get_res4psi();
     std::cout<<"mix the wavefunction Psi...\n";
     myDFT.mixing();
-    iter++;
-  }while(1);
-  myDFT.printMesh(); 
+  }while(1)
+  //myDFT.printMesh(); 
 }

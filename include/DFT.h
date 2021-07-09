@@ -21,6 +21,8 @@
 #include <AFEPack/HGeometry.h>
 #include <AFEPack/DGFEMSpace.h>
 
+#include <EigenSolver/EigenSolver.h>
+
 //#include "./Matrix.h"
 
 #define DIM 3
@@ -71,11 +73,16 @@ class DFT
   void initialize();
 
   /**
-   * This function initialize the electric density rho to start 
+   * This function initialize the wavefunction Phi to start 
    * self-consistent iteration.
    */
-  void initializeRho();
+  void initializePhi();
 
+  /**
+   * This function computes the density Rho from known phi;
+   */
+  void getval4rho();
+  
   /**
    * This function is used to build the finite element space for KS
    * equations to get the wavefunctions.
@@ -145,10 +152,15 @@ class DFT
   void addBoundaryCondition_KS();
   
   /**
-   * This function can normalize the wave function to satisfy the 
+   * This function can normalize the refer-function to satisfy the 
    * normalization condition of the wave functions.
    */
-  void normalize(FEMFunction<double,DIM>& P); 
+  void normalize(FEMFunction<double,DIM>& P);
+
+  /**
+   * This function can normalize the wave function phi
+   */
+  void normalize_phi();
 
   void printMesh();
 
@@ -156,6 +168,23 @@ class DFT
    * This function solve the poisson equation to get V_Hartree 
    */
   void solveHartree();
+
+  /**
+   * This function solve the KS equation to get wavefunction psi
+   */
+  void solveKS();
+
+  /**
+   * This function computes the mixing scheme of output wavefunction
+   * of KS equation
+   */
+  void mixing();
+
+  /**
+   * This function computes the residual between the phi_old and 
+   * phi_new from KS equation.
+   */
+  void get_res4psi(double& res);
   
  private:
   //int DIM;
@@ -214,11 +243,21 @@ class DFT
   Vector<double> * rhs;
   //Vector<double> * rho;
   FEMFunction<double,DIM> * phi;
+  FEMFunction<double,DIM> * old_phi;
   FEMFunction<double,DIM> * rho;
 
   std::vector<int> boundaryDOFIndex;
   std::vector<int> internalDOFIndex;
   std::vector<int> boundaryDGEleIndex;
+
+  // This vector lambda_e stores the eigenvalues of KS equation;
+  std::vector<double> lambda_e;
+
+  // The index of the mixing scheme;
+  double alpha = 0.1;
+
+  // residual of the self-consistent iteration;
+  // double res = 0.0;
   
 };
 

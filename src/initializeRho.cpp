@@ -97,17 +97,18 @@ void DFT::initializeRho()
 }
 */
 
-void DFT::initializeRho()
+void DFT::initializePhi()
 {
   phi = new FEMFunction<double,DIM>(*fem_space);
+  old_phi = new FEMFunction<double,DIM>(*fem_space);
   rho = new FEMFunction<double,DIM>(*fem_space);
 
   for (u_int i = 0;i < rho->size();++ i)
     {
       (*phi)[i] = ((double) rand() / (RAND_MAX));
-      std::cout<<(*phi)[i]<<" ";
+      //  std::cout<<(*phi)[i]<<" ";
     }
-  std::cout<<"The initial rho begin normalize...\n";
+  // std::cout<<"The initial rho begin normalize...\n";
   normalize(*phi);
   //rho->reinit(*fem_space);
   //std::cout<<"The size of rho is "<<rho->size()<<std::endl;
@@ -142,10 +143,13 @@ void DFT::initializeRho()
   */
   //////////////////////////////
 
+  /*
   for (u_int i = 0;i < rho->size();i ++)
     {
       (*rho)[i] = 2 * (*phi)[i] * (*phi)[i];
       // std::cout<<(*rho)[i]<<" ";
-    }
-  std::cout<<"size of rho is "<<rho->size()<<std::endl;
+    }*/
+
+  
+  // std::cout<<"size of rho is "<<rho->size()<<std::endl;
 }

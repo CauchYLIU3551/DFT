@@ -24,12 +24,17 @@ void DFT::normalize(FEMFunction<double, DIM>& P)
 	  norm += Jxw * rho_val[l] * rho_val[l];
 	}
     }
-  std::cout<<"This is the initial rho at the vertice of mesh...\n";
+ // std::cout<<"This is the initial rho at the vertice of mesh...\n";
   for (u_int i = 0;i < P.size();++ i)
     {
       P[i] /=  sqrt(norm);
-      std::cout<<P[i]<<" ";
+   //   std::cout<<P[i]<<" ";
     }
-  std::cout<<std::endl;
+  //std::cout<<std::endl;
 
+}
+
+void DFT::normalize_phi()
+{
+  normalize(*phi);
 }
