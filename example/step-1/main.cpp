@@ -21,7 +21,8 @@ int main(int argc, char* argv[])
   //////////////////////////////////////////////////////////////
   // build the finite element space.
   myDFT.buildspace();
-  
+  std::cout<<"get the index of the boundary..."<<std::endl;
+  myDFT.getBoundaryIndex(); 
   
   //////////////////////////////////////////////////////////////
   // prepare has been done. It's time to assemble matrix and rhs 
@@ -44,5 +45,11 @@ int main(int argc, char* argv[])
   myDFT.addBoundaryCondition_Hartree();
   std::cout<<"Begin to solve the poisson equation for Hartree...\n";
   myDFT.solveHartree();
+  std::cout<<"Begin to build the system of KS equation...\n";
+  myDFT.buildMatrixA4KS();
+  myDFT.buildMatrixM4KS();
+  std::cout<<"Begin to apply the boundary condition into the matrices...\n";
+  myDFT.addBoundaryCondition_KS();
+
   //myDFT.printMesh(); 
 }

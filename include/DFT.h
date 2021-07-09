@@ -21,12 +21,36 @@
 #include <AFEPack/HGeometry.h>
 #include <AFEPack/DGFEMSpace.h>
 
+//#include "./Matrix.h"
+
 #define DIM 3
 #define PI 4.0*atan(1)
 #define ACC 2
+#define kappa 1.0
+
+////////////////////////////////////////////////////////////////////
+// This class is used to build the stiffmatrix for KS
+class MatrixA : public L2InnerProduct<DIM,double>
+{
+  //friend class DFT;
+ public:
+  MatrixA(FEMSpace<double,DIM> &sp, FEMFunction<double,DIM>& v):
+  L2InnerProduct<DIM,double>(sp,sp), V(&v){}
+  virtual ~MatrixA(){};
+ public:
+  virtual void
+  getElementMatrix(const Element<double,DIM>& ele0,
+		   const Element<double,DIM>& ele1,
+		   const ActiveElementPairIterator<DIM>::State state);
+ private:
+  FEMFunction<double,DIM> * V;
+};
+////////////////////////////////////////////////////////////////////
+
 
 class DFT
 {
+  //friend class MatrixA;
  public:
   DFT();
   DFT(HGeometryTree<DIM>* _h_tree,
@@ -37,6 +61,8 @@ class DFT
    */
   void readMesh(const std::string& fileName,
 		const int& refine_times);
+
+  void getBoundaryIndex();
   
   /**
    * This function is used to initialization, including read mesh 
@@ -63,15 +89,61 @@ class DFT
    */
   //void buildspaceHartree();
 
+  /**
+   * This function helps to add boundary mark to the info of the 
+   * points at boundary.
+   */
+  void addBoundMark();
+
+  /**
+   * This function builds the stiff matrix of the poisson equation
+   * of Hartree potential to build the linear system.
+   */
   void buildHartreeMatrix();
+
+  /**
+   * This function computes the rhs vector corresponding to the 
+   * poisson equation of Hartree potential.
+   */
   void getRHS_Hartree();
+
+  /**
+   * Apply the boundary condition of the poisson equation into the 
+   * stiff matrix and rhs vector.
+   * In fact, it is not accurate enough to set the boundary as 
+   * Dirchlet Condition with value 0. So it has to be updated in
+   * the following tests.
+   */
   void addBoundaryCondition_Hartree();
+  
   /**
    * This function is used to compute the Hartree potential.
    * In fact, It just solve a linear system of a poisson equation.
    */
   void getHartree();
 
+  //////////////////////////////////////////////////////////////////
+  // Begin to build the generalized eigenvalue problems to solve the
+  // KS equation.
+  // The form of the generalized eigenvalue problem should be
+  // Ax = e * Mx;
+  /**
+   * This function builds the stiff matrix A of the generalized 
+   * eigenvalue problem equation of the KS equation.
+   */
+  void buildMatrixA4KS();
+
+  /**
+   * This function builds the mass matrix M of the eigen problem;
+   */
+  void buildMatrixM4KS();
+
+  /**
+   * This function applies the boundary condition into the matrices 
+   * A and M in the equation A x = e * M x;
+   */
+  void addBoundaryCondition_KS();
+  
   /**
    * This function can normalize the wave function to satisfy the 
    * normalization condition of the wave functions.
@@ -97,8 +169,10 @@ class DFT
   //DGFEMSPace<double, DIM> * old_fem_space;
 
   StiffMatrix<DIM, double> * stiff_Hartree;
-  StiffMatrix<DIM, double> * stiff_matrix;
-
+  //StiffMatrix<DIM, double> * stiff_matrix;
+  MatrixA * stiff_KS;
+  MassMatrix<DIM, double> * mass_KS;
+  
   // for regular template 
   TemplateGeometry<DIM> template_geometry;
   CoordTransform<DIM,DIM> coord_transform;
@@ -141,6 +215,13 @@ class DFT
   //Vector<double> * rho;
   FEMFunction<double,DIM> * phi;
   FEMFunction<double,DIM> * rho;
+
+  std::vector<int> boundaryDOFIndex;
+  std::vector<int> internalDOFIndex;
+  std::vector<int> boundaryDGEleIndex;
+  
 };
 
+
 #endif
+

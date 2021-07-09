@@ -20,9 +20,44 @@ void DFT::addBoundaryCondition_Hartree()
 
   V_hartree = new FEMFunction<double,DIM>(*fem_space);
   
-  
+    
   BoundaryFunction<double, DIM> boundary(BoundaryConditionInfo::DIRICHLET, 1, &_f_);
   BoundaryConditionAdmin<double, DIM> boundary_admin(*fem_space);
   boundary_admin.add(boundary);
   boundary_admin.apply(*stiff_Hartree, *V_hartree, *rhs);
+}
+
+void DFT::addBoundaryCondition_KS()
+{
+  const int & n_dof = fem_space->n_dof();
+  RegularMesh<DIM>& regular_mesh = irregular_mesh->regularMesh();
+
+  SparsityPattern& sp = stiff_KS->getSparsityPattern();
+  const size_t * row_start = sp.get_rowstart_indices();
+  const unsigned int * column = sp.get_column_numbers();
+
+  double bnd_value = 0.;
+  int k = 0;
+  const int& n_boundaryDOFIndex = boundaryDOFIndex.size();
+  for(int i = 0;i < n_boundaryDOFIndex;++ i)
+    {
+      const int& dof_idx = boundaryDOFIndex[i];
+      
+ 
+      // the boundary value is set as 0;
+      //(*rhs)(dof_idx) = stiff_KS->global_entry(row_start[dof_idx]) * bnd_value;
+      for (int j = row_start[dof_idx] + 1;j < row_start[dof_idx + 1];++ j)
+	{
+	  stiff_KS->global_entry(j) = 0.;
+	  mass_KS->global_entry(j) = 0.;
+	  k = column[j];
+	  const unsigned int *p = std::find(&column[row_start[k] + 1], &column[row_start[k+1]], j);
+	  if(p != &column[row_start[k+1]])
+	    {
+	      //(*rhs)(*p) -= stiff_KS->global_entry(*p) * bnd_value;
+	      stiff_KS->global_entry(*p) = 0.;
+	      mass_KS->global_entry(*p) = 0.; 
+	    }
+	}
+    } 
 }

@@ -5,7 +5,7 @@ DFT::DFT()
 {
   rhs = new Vector<double>();
   fem_space = new DGFEMSpace<double, DIM>();
-  stiff_matrix = new StiffMatrix<DIM, double>();
+  //stiff_matrix = new StiffMatrix<DIM, double>();
 }
 DFT::DFT(HGeometryTree<DIM>* _h_tree,
 	      IrregularMesh<DIM>* _ir_mesh)
@@ -15,7 +15,7 @@ DFT::DFT(HGeometryTree<DIM>* _h_tree,
 
   rhs = new Vector<double>();
   fem_space = new DGFEMSpace<double, DIM>();
-  stiff_matrix = new StiffMatrix<DIM, double>();
+  //stiff_matrix = new StiffMatrix<DIM, double>();
 }
 
 
@@ -111,25 +111,17 @@ void DFT::buildspace()
   fem_space->buildElement();
   fem_space->buildDof();
   fem_space->buildDofBoundaryMark();
+
+  u_int n_edge = regular_mesh.n_geometry(DIM-1);
+  fem_space->dgElement().resize(n_edge);
+  for(u_int i = 0;i < n_edge;i ++)
+    {
+      fem_space->dgElement(i).reinit(*fem_space,i,0);
+    }
   
   std::cout<<"fem space is built..."<<std::endl;
 }
 
-void DFT::buildHartreeMatrix()
-{
-  /*
-  if(stiff_Hartree != NULL){
-    std::cout << "deleting the current stiff_matrix" << std::endl;
-    delete stiff_Hartree;
-    std::cout << "deleting successfully!\n";
-    stiff_Hartree = new StiffMatrix<DIM, double>(*fem_space);
-  }*/
-
-  std::cout << "build a new stiff_matrix for Hatree potential" << std::endl;
-  stiff_Hartree = new StiffMatrix<DIM, double>(*fem_space);
-  stiff_Hartree->algebricAccuracy() = ACC;
-  stiff_Hartree->build();
-}
 
 void DFT::getHartree()
 {
